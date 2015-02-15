@@ -114,7 +114,7 @@ dailySum2 <- summarize(dailySum2, Steps = sum(steps))       # sum by date
 
 h2 <- ggplot(dailySum2, aes(x = Steps)) + 
         geom_histogram(fill = "skyblue", color = "darkgray") +
-        labs(title = "Histogram of Total Daily Steps\n") +
+        labs(title = "Histogram of Total Daily Steps (Imputed Data)\n") +
         scale_y_discrete(breaks = seq(0, 12, by = 1))
 
 print(h2)
@@ -131,3 +131,33 @@ It appears my strategy for imputing the data only increased the number of days t
 <br>
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+First, I'm going to add a new column that designates whether it is weekday or weekend and then average the imputed data in each 5-minute interval across the common day type. Then I'm going to plot two time series charts that compare weekday steps to weekend steps.
+
+```{r panel plot, fig.width = 10}
+data2 <- tbl_df(data2)
+
+data2 <- mutate(data2, day = weekdays(as.Date(date)))
+data2$day <- gsub("Saturday", "weekend", data2$day)
+data2$day <- gsub("Sunday", "weekend", data2$day)
+data2$day <- gsub("Monday", "weekday", data2$day)
+data2$day <- gsub("Tuesday", "weekday", data2$day)
+data2$day <- gsub("Wednesday", "weekday", data2$day)
+data2$day <- gsub("Thursday", "weekday", data2$day)
+data2$day <- gsub("Friday", "weekday", data2$day)
+
+avgIntv2 <- group_by(data2, interval, day)              # group data by day by interval
+avgIntv2 <- summarize(avgIntv2, Steps = mean(steps))    # average by interval
+
+tsPlot2 <- ggplot(avgIntv2, aes(x = interval, y = Steps)) + 
+        geom_line(color = "blue") +
+        facet_wrap(~ day, ncol=1) +
+        labs(title = "Plot of Average Steps Taken per Interval (Weekday vs. Weekend)\n") +
+        scale_x_discrete(breaks = seq(0, 2400, by = 100))
+
+print(tsPlot2)
+```
+
+On weekdays there appears to be more steps taken in the morning and evening, whereas weekends show more steps during the middle of the day. 
+
+
