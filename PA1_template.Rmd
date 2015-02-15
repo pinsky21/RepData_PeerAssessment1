@@ -15,6 +15,8 @@ data <- tbl_df(data)                            # convert to dplyr data frame
 
 <br>
 
+
+
 ## What is mean total number of steps taken per day?
 
 First, plot a histogram of the data
@@ -42,6 +44,8 @@ sMedian <- median(dailySum$Steps, na.rm = T)
 #### Median = `r sMedian`
 
 <br>
+
+
 
 ## What is the average daily activity pattern?
 
@@ -71,8 +75,58 @@ maxIntv <- with(avgIntv, interval[Steps==maxSteps])     # finds which interval i
 
 <br>
 
+
+
 ## Imputing missing values
 
+First, determine the total number of missing values in the dataset (i.e. total number of
+rows with NAs)
+
+```{r}
+totalNAs <- is.na(data$steps)           # creates a logical vector of which rows have NAs
+totalNAs <- sum(as.numeric(totalNAs))   # convert TRUEs to 1 and sum
+```
+
+#### Total number of missing values is `r totalNAs`
+
+Next, my strategy for filling in missing values in the dataset is to replace each NA value with the mean (calculated above) for that 5-minute interval it is found in.
+
+```{r}
+# convert the data back to a normal data frame
+data2 <- data.frame(data)
+# find the row numbers in the dataset that are NAs (i.e. missing)
+rowNums <- as.integer(rownames(data2[is.na(data2$steps), ]))
+# get the intervals the missing data belongs to
+vIntervals <- data2[rowNums, "interval"]
+
+# loop on each row that is missing data and replace it with the mean value corresponding
+# to its 5-minute interval
+for (i in 1:length(rowNums)) {
+        data2[rowNums[i], "steps"] <- avgIntv[avgIntv$interval==vIntervals[i], "Steps"]
+}
+```
+
+Now, with the missing values imputed, create a histogram of the of the total number of steps taken each day and then calculate the Mean and Median.
+
+```{r, imputed histogram, fig.width = 10, message = FALSE}
+dailySum2 <- group_by(data2, date)                          # group data by date
+dailySum2 <- summarize(dailySum2, Steps = sum(steps))       # sum by date
+
+h2 <- ggplot(dailySum2, aes(x = Steps)) + 
+        geom_histogram(fill = "skyblue", color = "darkgray") +
+        labs(title = "Histogram of Total Daily Steps\n") +
+        scale_y_discrete(breaks = seq(0, 12, by = 1))
+
+print(h2)
+
+sMean2 <- mean(dailySum2$Steps)
+sMedian2 <- median(dailySum2$Steps)
+```
+
+#### Mean = `r format(sMean2, nsmall=2)`  
+#### Median = `r format(sMedian2, nsmall=2)`
+
+It appears my strategy for imputing the data only increased the number of days the data set was near the mean, which the median almost proves. It went from 4 days observed in its bucket to 12.
 
 <br>
 
