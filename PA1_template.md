@@ -25,9 +25,10 @@ First, plot a histogram of the data
 dailySum <- group_by(data, date)                          # group data by date
 dailySum <- summarize(dailySum, Steps = sum(steps))       # sum by date
 
-h <- ggplot(dailySum, aes(x=Steps)) + 
+h <- ggplot(dailySum, aes(x = Steps)) + 
         geom_histogram(fill = "skyblue", color = "darkgray") +
-        labs(title = "Histogram of Total Daily Steps\n")
+        labs(title = "Histogram of Total Daily Steps\n") +
+        scale_y_discrete(breaks = seq(0, 10, by = 1))
 
 print(h)
 ```
@@ -38,8 +39,8 @@ Next, calculate the Mean and Median of Total Daily Steps
 
 
 ```r
-sMean <- round(mean(dailySum$Steps, na.rm=T), 2)        # round to 2 decimal places
-sMedian <- median(dailySum$Steps, na.rm=T)
+sMean <- round(mean(dailySum$Steps, na.rm = T), 2)        # round to 2 decimal places
+sMedian <- median(dailySum$Steps, na.rm = T)
 ```
 
 #### Mean = 10766.19  
@@ -55,17 +56,27 @@ taken (averaged across all days)
 
 ```r
 avgIntv <- group_by(data, interval)                             # group data by interval
-avgIntv <- summarize(avgIntv, Steps = mean(steps, na.rm=T))     # average by interval
+avgIntv <- summarize(avgIntv, Steps = mean(steps, na.rm = T))   # average by interval
 
-tsPlot <- ggplot(avgIntv, aes(x=interval, y=Steps)) + 
-        geom_line(aes(size=1), color = "skyblue") +
+tsPlot <- ggplot(avgIntv, aes(x = interval, y = Steps)) + 
+        geom_line(color = "blue") +
         labs(title = "Plot of Average Steps Taken per Interval (Across all Days)\n") +
-        scale_x_discrete(breaks=seq(0, 2400, by=100))
+        scale_x_discrete(breaks = seq(0, 2400, by = 100))
 
 print(tsPlot)
 ```
 
 ![plot of chunk time series plot](figure/time series plot-1.png) 
+
+Next, determine which 5-minute interval contains the maximum average number of steps
+
+
+```r
+maxSteps <- max(avgIntv$Steps)                          # finds max value in Steps column
+maxIntv <- with(avgIntv, interval[Steps==maxSteps])     # finds which interval it is
+```
+
+#### Interval 835 has the maximum average number of steps = 206.17
 
 <br>
 
