@@ -5,7 +5,8 @@ Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
 
-```{r load libraries, message=FALSE}
+
+```r
 library(ggplot2)                                # load libraries used in this assignment
 library(dplyr)
 
@@ -19,7 +20,8 @@ data <- tbl_df(data)                            # convert to dplyr data frame
 
 First, plot a histogram of the data
 
-```{r histogram, message=FALSE}
+
+```r
 dailySum <- group_by(data, date)                          # group data by date
 dailySum <- summarize(dailySum, Steps = sum(steps))       # sum by date
 
@@ -30,15 +32,18 @@ h <- ggplot(dailySum, aes(x=Steps)) +
 print(h)
 ```
 
+![plot of chunk histogram](figure/histogram-1.png) 
+
 Next, calculate the Mean and Median of Total Daily Steps
 
-```{r, mean and median}
+
+```r
 sMean <- round(mean(dailySum$Steps, na.rm=T), 2)        # round to 2 decimal places
 sMedian <- median(dailySum$Steps, na.rm=T)
 ```
 
-#### Mean = `r format(sMean, nsmall=2)`  
-#### Median = `r sMedian`
+#### Mean = 10766.19  
+#### Median = 10765
 
 <br>
 
@@ -47,7 +52,8 @@ sMedian <- median(dailySum$Steps, na.rm=T)
 First, create a time series plot of the 5-minute intervals and the average number of steps
 taken (averaged across all days)
 
-```{r time series plot}
+
+```r
 avgIntv <- group_by(data, interval)                             # group data by interval
 avgIntv <- summarize(avgIntv, Steps = mean(steps, na.rm=T))     # average by interval
 
@@ -58,6 +64,8 @@ tsPlot <- ggplot(avgIntv, aes(x=interval, y=Steps)) +
 
 print(tsPlot)
 ```
+
+![plot of chunk time series plot](figure/time series plot-1.png) 
 
 <br>
 
